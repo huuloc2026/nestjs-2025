@@ -1,0 +1,1 @@
+GRANT ALL PRIVILEGES ON DATABASE my_database TO admin;
