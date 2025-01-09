@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+
+
 import { AuthRegisterDto } from './dto/AuthRegisterDTO';
 import { LoginDTO } from './dto/LoginDTO';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+
+import { ChangePasswordDTO } from './dto/ChangePasswordDTO';
+import { UpdateInfoDTO } from './dto/UpdateInforDTO';
 
 @Controller('auth')
 export class AuthController {
@@ -22,15 +23,24 @@ export class AuthController {
     return this.authService.verify(body)
   }
   @Post('signin') 
-
   @UseInterceptors(AuthInterceptor)
   signin(@Body() body: LoginDTO) {
-    console.log('run here');
     return this.authService.signin(body)
   }
+
+  @Put('update')
+  update(@Body() body: UpdateInfoDTO){
+    return this.authService.updateInfo(body)
+  }
+
+  @Post('changepassword')
+  changePassword(@Body() body: ChangePasswordDTO) {
+    return this.authService.ChangePassword(body)
+  }
+
   @Post('signout')
   signout(@Body() body) {
-    return this.authService.signout
+    return this.authService.signout()
   }
 
   // @Post()

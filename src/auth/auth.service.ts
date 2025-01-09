@@ -10,27 +10,31 @@ import { JwtService } from '@nestjs/jwt';
 import { expiredAT, expiredRF, JWTSECRET } from 'src/utils/CONSTANTS';
 import { randomUUID } from 'crypto';
 import { AuthResponseDTO } from './dto/AuthResponseDTO';
+import { ChangePasswordDTO } from './dto/ChangePasswordDTO';
+import { UpdateInfoDTO } from './dto/UpdateInforDTO';
+import { IUpdateInfor } from './interfaces/IUpdateInfor';
+import { UsersService } from 'src/users/users.service';
+import { CommonService } from 'src/common/common.service';
+
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwt: JwtService
-
+    private readonly prisma: PrismaService,
+    private readonly jwt: JwtService,
+    private readonly userService: UsersService,
+    private readonly commonService: CommonService
   ) {}
 
   async signup(dto: AuthRegisterDto) {
     const { email, name, password } = dto
-
-    const findUser = await this.prisma.user.findUnique({ where: { email } })
+    const findUser = await this.userService.getUserByEmail(email)
     if (findUser) throw new HttpException("Email already exist",HttpStatus.UNAUTHORIZED)
     // Hash the password
     const hashedpassword = await this.HashPassword(password)
     // Generate verification code
     const verifyCode = fnGenerateVerifyCode()
     const uuid = randomUUID()
-    console.log(uuid);
     // // generate public key 
-    // const {publicKey} = fnGenerateSecretKey()
     const test = await this.prisma.user.create({
       data: {
         email, name, password: hashedpassword, verificationCode: verifyCode,
@@ -44,7 +48,7 @@ export class AuthService {
     const { email, code } = dto;
     if (!email || !code) throw new NotFoundException('Email/Code not found');
     // Check email
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.userService.getUserByEmail(email)
     if (!user) throw new NotFoundException('Email not found');
 
     // Check email is verifed 
@@ -73,7 +77,7 @@ export class AuthService {
   async signin(body: LoginDTO) {
     const { email, password } = body
     // Check if the email exists
-    const findUser = await this.prisma.user.findUnique({ where: { email } })
+    const findUser = await this.userService.getUserByEmail(email)
     if (!findUser) throw new HttpException("Email not found",HttpStatus.NOT_FOUND)
     // verify password
     const validPassword = await this.VerifyPassword(password, findUser.password)
@@ -85,23 +89,32 @@ export class AuthService {
       email: findUser.email
     }
     const { accessToken, refreshToken } = await this.generateTokens(payload);
-    return {...findUser,accessToken,refreshToken}
+    return { ...findUser,accessToken,refreshToken}
     
+  }
+  async updateInfo(body: IUpdateInfor){
+    console.log(body);
+    
+    return `update oke`
 
   }
   async signout() {
     return { messages: "oke signout successfully" }
   }
-
   async VerifyAccount(dto: any) {
+    return { messages: "oke VerifyAccount successfully" }
+  }
+
+  async ChangePassword(data: ChangePasswordDTO){
+    const {oldPassword,confirmPassword,newPassword} = data 
+    console.log(data);
+    return { messages: "oke ChangePassword successfully" }
   }
 
 
   async refreshTokens(refreshToken: string) {
     try {
-      // Verify the refresh token
       const decoded = await this.jwt.verifyAsync(refreshToken, { secret: JWTSECRET });
-
       // If valid, generate new access token
       const { accessToken, refreshToken: newRefreshToken } = await this.generateTokens({ id: decoded.id, email: decoded.email });
 
@@ -112,7 +125,7 @@ export class AuthService {
   }
 
 
-  async generateTokens(payload: { id: string | number, email: string }) {
+  private async generateTokens(payload: { id: string | number, email: string }) {
     const accessToken = await this.jwt.signAsync(payload, { secret: JWTSECRET, expiresIn: expiredAT });
     const refreshToken = await this.jwt.signAsync(payload, { secret: JWTSECRET, expiresIn: expiredRF });
     return { accessToken, refreshToken };
