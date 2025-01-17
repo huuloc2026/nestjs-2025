@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsPhoneNumber,
 } from 'class-validator';
+import { GENDER } from 'src/user/entities/EUser';
 
 export class CreateUserDto {
   @IsEmail()
@@ -23,17 +24,16 @@ export class CreateUserDto {
 
   @Expose()
   @IsOptional()
-  @IsPhoneNumber('VN')
-  phoneNumber: string; // Phù hợp với User entity
-
+  @IsPhoneNumber('VN',{message: "Format PhoneVN: 09xx.xxx.xxx"})
+  phoneNumber: string;
   @Expose()
   @IsOptional()
   avatar: string;
 
   @Expose()
   @IsOptional()
-  @IsEnum(['Male', 'Female', 'Other'])
-  gender: 'Male' | 'Female' | 'Other'; // Phù hợp với User entity
+  @IsEnum(GENDER)
+  gender: GENDER;
 
   @Expose()
   @IsOptional()

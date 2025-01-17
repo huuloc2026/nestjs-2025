@@ -1,60 +1,57 @@
+import { BaseEntity } from "src/base-entity";
 import { Post } from "src/post/entities/post.entity";
+import { GENDER, ROLE } from "src/user/entities/EUser";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
 
+
+
+
+@Entity('users')
+export class User extends BaseEntity {
   @Column({ nullable: false })
   email: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, select: false })
   password: string;
 
-  @Column({ type: 'varchar',nullable:true })
-  name!: string;
+  @Column({ type: 'varchar', nullable: true })
+  name: string;
 
   @Column({ type: 'varchar', nullable: true })
-  fullName!: string;
+  fullName: string;
 
   @Column({ type: 'date', nullable: true })
-  dateOfBirth!: Date | string;
+  dateOfBirth: Date;
 
-  @Column({ type: 'enum', enum: ['Male', 'Female', 'Other'], default: 'Other' })
-  gender!: 'Male' | 'Female' | 'Other';
+  @Column({ type: 'enum', enum: GENDER, default: GENDER.OTHER })
+  gender: GENDER;
 
   @Column({ type: 'varchar', nullable: true })
-  phoneNumber!: string;
+  phoneNumber: string;
 
   @Column({ type: 'text', nullable: true })
-  address!: string;
+  address: string;
 
   @Column({
     type: 'enum',
-    enum: ['User', 'Admin', 'Moderator'],
-    default: 'User',
+    enum: ROLE,
+    default: ROLE.USER,
   })
-  role!: 'User' | 'Admin' | 'Moderator';
+  role: ROLE;
 
   @Column({ type: 'boolean', default: false })
-  isVerified!: boolean;
+  isVerified: boolean;
 
   @Column({ type: 'varchar', nullable: true })
-  verificationCode!: string;
+  verificationCode: string;
 
   @Column({ type: 'varchar', nullable: true })
-  salt!: string;
+  salt: string;
 
   @Column({ nullable: true })
-  Avatar!: string;
+  Avatar: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt!: Date;
-
-  @OneToMany(()=>Post,(post)=>post.author)
-  post: Post[]
+  @OneToMany(() => Post, (post) => post.author)
+  post: Post[];
 }

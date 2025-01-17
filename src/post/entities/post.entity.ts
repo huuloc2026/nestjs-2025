@@ -4,40 +4,40 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "t
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id: number;
 
   @Column({ type: 'varchar', length: 250, nullable: false })
-  title!: string;
+  title: string;
 
   @Column('text')
-  content!: string;
+  content: string;
 
   @Column({ type: 'varchar', length: 2048, nullable: false })
-  thumbnail!: string;
+  thumbnail: string;
 
   @Column({ type: 'varchar', length: 125 })
-  category!: string;
+  category: string;
 
   @Column({ type: 'datetime', default: () => 'now()' })
-  dateTime!: Date;
+  dateTime: Date;
 
   @ManyToOne(() => User, (user) => user.id)
   @JoinColumn()
   @Column({ type: 'varchar', length: 125 })
-  author!: User | string;
+  author: User | string;
 
   @Column('simple-array')
-  tags!: string[];
+  tags: string[];
 
   @Column({ type: 'enum', enum: ['Draft', 'Published', 'Deleted'] })
-  status!: string;
+  status: string;
 
   @Column({ type: 'varchar', length: 500 })
-  description!: string;
+  description: string;
 
   @Column({ type: 'int', default: 0 })
-  views!: number;
+  views: number;
 
   @Column({ type: 'int', default: 0 })
-  commentsCount!: number;
+  commentsCount: number;
 }

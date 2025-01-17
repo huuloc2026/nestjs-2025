@@ -13,7 +13,7 @@ export class UserService {
 
   }
   async create(createUserDto: CreateUserDto) {
-    const newUser = await this.userRepo.save(createUserDto)
+    const newUser:UpdateUserDto = await this.userRepo.save(createUserDto)
     return newUser;
   }
 
