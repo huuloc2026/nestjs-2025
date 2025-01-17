@@ -1,4 +1,4 @@
-import { BaseEntity } from "src/base-entity";
+import { BaseEntity } from "src/base/base-entity";
 import { Order } from "src/module/order/entities/order.entity";
 
 import { Post } from "src/module/post/entities/post.entity";

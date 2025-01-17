@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/base-entity';
+import { BaseEntity } from 'src/base/base-entity';
 import { Product } from 'src/module/product/entities/product.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 

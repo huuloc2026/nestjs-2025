@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/base-entity';
+import { BaseEntity } from 'src/base/base-entity';
 import { Category } from 'src/module/category/entities/category.entity';
 import { Seller } from 'src/module/seller/entities/seller.entity';
 import {

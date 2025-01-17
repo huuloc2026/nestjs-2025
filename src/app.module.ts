@@ -16,6 +16,7 @@ import { OrderItemModule } from './module/order-item/order-item.module';
 import { UserModule } from 'src/module/user/user.module';
 import { PostModule } from 'src/module/post/post.module';
 import { OrderModule } from 'src/module/order/order.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [UserModule,
@@ -26,7 +27,8 @@ import { OrderModule } from 'src/module/order/order.module';
     ProductModule,
     CategoryModule,
     OrderModule,
-    OrderItemModule, 
+    OrderItemModule,
+    MailerModule, 
   ],
   controllers: [],
   providers: [],

@@ -1,5 +1,5 @@
 
-import { BaseEntity } from "src/base-entity";
+import { BaseEntity } from "src/base/base-entity";
 import { StatusPost } from "src/common/constants/StatusPost";
 import { User } from "src/module/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
