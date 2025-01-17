@@ -1,19 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { AuthSignupDto, CreateAuthDto, UpdateAuthDto } from 'src/auth/dto';
+import { Tokens } from 'src/auth/types';
+
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
+  @HttpCode(HttpStatus.CREATED)
   SignUp(@Body() newUser: CreateAuthDto) {
     return this.authService.SignUp(newUser);
   }
   @Post('/signin')
-  SignIn(@Body() newUser: {email:string,password:string}) {
+  @HttpCode(HttpStatus.OK)
+  SignIn(@Body() newUser: AuthSignupDto) {
+    // :Promise<Tokens>
     return this.authService.SignIn(newUser);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.ACCEPTED)
+  logout(userId: number): Promise<boolean> {
+    return this.authService.SignOut(userId);
+  }
+
+  @Post('refreshtoken')
+  @HttpCode(HttpStatus.ACCEPTED)
+  RefreshToken(userId: number): Promise<boolean> {
+    return this.authService.RefreshToken(userId);
   }
 
   @Post()
