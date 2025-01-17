@@ -24,11 +24,18 @@ export class AuthService {
   async SignIn(User: { email: string; password: string }) {
     const { email, password } = User;
     const existUser = await this.userService.findOnebyEmail(email);
-    if (!existUser) {throw new ForbiddenException('Access denied!!')}
+    if (!existUser) {
+      throw new ForbiddenException('Access denied!!');
+    }
     const isMatch = await this.verifyPassword(password, existUser.password);
-    if (!isMatch) {throw new ForbiddenException('Something wrong! Please try again')}
-    const {access_token,refresh_token} = await this.GenerateToken(existUser.id,existUser.email)
-    const hashToken = await this.hashPassword(refresh_token)
+    if (!isMatch) {
+      throw new ForbiddenException('Something wrong! Please try again');
+    }
+    const { access_token, refresh_token } = await this.GenerateToken(
+      existUser.id,
+      existUser.email,
+    );
+    const hashToken = await this.hashPassword(refresh_token);
     //save refresh Token -> db
     await this.userService.update(existUser.id, {
       ...existUser,
@@ -41,7 +48,7 @@ export class AuthService {
     };
   }
 
-  private async GenerateToken(userId:number,email:string){
+  private async GenerateToken(userId: number, email: string) {
     const access_token = await this.jwtService.signAsync(
       {
         sub: userId,
@@ -62,14 +69,34 @@ export class AuthService {
         expiresIn: this.configService.get<string>('RT_EXPIRE'),
       },
     );
-    return {access_token,refresh_token}
+    return { access_token, refresh_token };
+  }
+  private async VerifyToken(token:string,type:'AT'|'RT'){
+    const decoded =
+      type == 'AT'
+        ? await this.jwtService.verify(token, {
+            secret: this.configService.get<string>('AT_SECRET'),
+          })
+        : await this.jwtService.verify(token, {
+            secret: this.configService.get<string>('RT_SECRET'),
+          });
+    return decoded
   }
 
+  
+  async RefreshToken(refreshToken: string) {
+    const decoded = await this.VerifyToken(refreshToken,'RT')
+    if(!decoded){throw new ForbiddenException("Something wrong")}
+    const existUser = await this.userService.findOnebyEmail(decoded.email);
+    if (!existUser) {
+      throw new ForbiddenException('Access denied!!');
+    }
+    const { access_token, refresh_token } = await this.GenerateToken(decoded.id,decoded.email)
+    return { access_token, refresh_token };
+  }
+  
+  
   async SignOut(userId: number) {
-    return false;
-  }
-
-  async RefreshToken(userId: number) {
     return false;
   }
 

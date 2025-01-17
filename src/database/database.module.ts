@@ -3,7 +3,7 @@ import { DatabaseService } from './database.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from 'src/module/user/entities/user.entity';
-import { Product } from 'src/product/entities/product.entity';
+import { Product } from 'src/module/product/entities/product.entity';
 import { Post } from 'src/module/post/entities/post.entity';
 import { Category } from 'src/module/category/entities/category.entity';
 import { Order } from 'src/module/order/entities/order.entity';

@@ -18,10 +18,9 @@ export class Post extends BaseEntity {
   @Column({ type: 'varchar', length: 125 })
   category: string;
 
-  @ManyToOne(() => User, (user) => user.id)
+  @ManyToOne(() => User, (user) => user.post, { nullable: false })
   @JoinColumn()
-  @Column({ type: 'varchar', length: 125 })
-  author: User | string;
+  author: User; 
 
   @Column('simple-array')
   tags: string[];

@@ -24,7 +24,6 @@ export class AuthController {
   }
 
   @Post('logout')
-  
   @HttpCode(HttpStatus.ACCEPTED)
   logout(userId: number): Promise<boolean> {
     return this.authService.SignOut(userId);
@@ -32,8 +31,8 @@ export class AuthController {
 
   @Post('refreshtoken')
   @HttpCode(HttpStatus.ACCEPTED)
-  RefreshToken(userId: number): Promise<boolean> {
-    return this.authService.RefreshToken(userId);
+  RefreshToken(@Body() {refreshToken}: any): Promise<any> {
+    return this.authService.RefreshToken(refreshToken);
   }
 
   @Post()

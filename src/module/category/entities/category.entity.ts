@@ -1,6 +1,6 @@
 
 import { BaseEntity } from 'src/base-entity';
-import { Product } from 'src/product/entities/product.entity';
+import { Product } from 'src/module/product/entities/product.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 
 

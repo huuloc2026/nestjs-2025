@@ -9,7 +9,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { SellerModule } from './module/seller/seller.module';
-import { ProductModule } from './product/product.module';
+import { ProductModule } from './module/product/product.module';
 import { CategoryModule } from './module/category/category.module';
 
 import { OrderItemModule } from './module/order-item/order-item.module';
