@@ -19,7 +19,7 @@ export class AuthController {
   @Post('/signin')
   @HttpCode(HttpStatus.OK)
   SignIn(@Body() newUser: AuthSignupDto) {
-    // :Promise<Tokens>
+
     return this.authService.SignIn(newUser);
   }
 

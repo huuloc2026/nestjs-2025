@@ -1,6 +1,9 @@
-import { BadGatewayException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateAuthDto, UpdateAuthDto } from './dto';
- 
 
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -71,7 +74,7 @@ export class AuthService {
     );
     return { access_token, refresh_token };
   }
-  private async VerifyToken(token:string,type:'AT'|'RT'){
+  async VerifyToken(token: string, type: 'AT' | 'RT') {
     const decoded =
       type == 'AT'
         ? await this.jwtService.verify(token, {
@@ -80,22 +83,30 @@ export class AuthService {
         : await this.jwtService.verify(token, {
             secret: this.configService.get<string>('RT_SECRET'),
           });
-    return decoded
+    return decoded;
   }
-
-  
+  async validateToken(token: string) {
+    const decoded = await this.jwtService.verify(token, {
+      secret: this.configService.get<string>('AT_SECRET'),
+    });
+    return decoded;
+  }
   async RefreshToken(refreshToken: string) {
-    const decoded = await this.VerifyToken(refreshToken,'RT')
-    if(!decoded){throw new ForbiddenException("Something wrong")}
+    const decoded = await this.VerifyToken(refreshToken, 'RT');
+    if (!decoded) {
+      throw new ForbiddenException('Something wrong');
+    }
     const existUser = await this.userService.findOnebyEmail(decoded.email);
     if (!existUser) {
       throw new ForbiddenException('Access denied!!');
     }
-    const { access_token, refresh_token } = await this.GenerateToken(decoded.id,decoded.email)
+    const { access_token, refresh_token } = await this.GenerateToken(
+      decoded.id,
+      decoded.email,
+    );
     return { access_token, refresh_token };
   }
-  
-  
+
   async SignOut(userId: number) {
     return false;
   }
