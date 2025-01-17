@@ -9,15 +9,18 @@ export class AuthController {
 
   @Post('/signup')
   SignUp(@Body() newUser: CreateAuthDto) {
-    console.log(newUser);
     return this.authService.SignUp(newUser);
+  }
+  @Post('/signin')
+  SignIn(@Body() newUser: {email:string,password:string}) {
+    return this.authService.SignIn(newUser);
   }
 
   @Post()
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.create(createAuthDto);
   }
-  
+
   @Get()
   findAll() {
     return this.authService.findAll();

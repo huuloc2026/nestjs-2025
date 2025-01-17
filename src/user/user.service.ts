@@ -13,7 +13,7 @@ export class UserService {
 
   }
   async create(createUserDto: CreateUserDto) {
-    const newUser:UpdateUserDto = await this.userRepo.save(createUserDto)
+    const newUser = await this.userRepo.save(createUserDto)
     return newUser;
   }
 
@@ -23,6 +23,9 @@ export class UserService {
 
   findOne(id: number) {
     return `This action returns a #${id} user`;
+  }
+  async findEmail(email:string):Promise<User>{
+    return await this.userRepo.findOne({where:{email}})
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
