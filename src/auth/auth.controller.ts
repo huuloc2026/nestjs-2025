@@ -24,6 +24,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  
   @HttpCode(HttpStatus.ACCEPTED)
   logout(userId: number): Promise<boolean> {
     return this.authService.SignOut(userId);

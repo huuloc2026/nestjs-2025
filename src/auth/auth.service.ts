@@ -1,10 +1,11 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { UserService } from 'src/user/user.service';
+import { BadGatewayException, ForbiddenException, Injectable } from '@nestjs/common';
+import { CreateAuthDto, UpdateAuthDto } from './dto';
+ 
+
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/module/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -22,15 +23,17 @@ export class AuthService {
   }
   async SignIn(User: { email: string; password: string }) {
     const { email, password } = User;
-    const existUser = await this.userService.findEmail(email);
-    if (!existUser) {
-      throw new BadGatewayException('Email not exist !! Please register');
-    }
+    const existUser = await this.userService.findOnebyEmail(email);
+    if (!existUser) {throw new ForbiddenException('Access denied!!')}
     const isMatch = await this.verifyPassword(password, existUser.password);
-    if (!isMatch) {
-      throw new BadGatewayException('Something wrong! Please try again');
-    }
+    if (!isMatch) {throw new ForbiddenException('Something wrong! Please try again')}
     const {access_token,refresh_token} = await this.GenerateToken(existUser.id,existUser.email)
+    const hashToken = await this.hashPassword(refresh_token)
+    //save refresh Token -> db
+    await this.userService.update(existUser.id, {
+      ...existUser,
+      refreshToken: hashToken,
+    });
     return {
       message: 'successfully sign in,...updating generate AT-RT',
       access_token,

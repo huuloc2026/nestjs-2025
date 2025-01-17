@@ -6,7 +6,8 @@ import {
   IsOptional,
   IsPhoneNumber,
 } from 'class-validator';
-import { GENDER } from 'src/user/entities/EUser';
+import { GENDER } from 'src/module/user/entities/EUser';
+
 
 export class CreateUserDto {
   @IsEmail()

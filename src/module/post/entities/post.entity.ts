@@ -1,11 +1,11 @@
-import { User } from "src/user/entities/user.entity";
+
+import { BaseEntity } from "src/base-entity";
+import { StatusPost } from "src/common/constants/StatusPost";
+import { User } from "src/module/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
-export class Post {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+@Entity('post')
+export class Post extends BaseEntity {
   @Column({ type: 'varchar', length: 250, nullable: false })
   title: string;
 
@@ -18,9 +18,6 @@ export class Post {
   @Column({ type: 'varchar', length: 125 })
   category: string;
 
-  @Column({ type: 'datetime', default: () => 'now()' })
-  dateTime: Date;
-
   @ManyToOne(() => User, (user) => user.id)
   @JoinColumn()
   @Column({ type: 'varchar', length: 125 })
@@ -29,8 +26,8 @@ export class Post {
   @Column('simple-array')
   tags: string[];
 
-  @Column({ type: 'enum', enum: ['Draft', 'Published', 'Deleted'] })
-  status: string;
+  @Column({ type: 'enum', enum: StatusPost, default: StatusPost.Draft })
+  status: StatusPost;
 
   @Column({ type: 'varchar', length: 500 })
   description: string;

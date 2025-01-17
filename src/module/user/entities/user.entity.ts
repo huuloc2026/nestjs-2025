@@ -1,6 +1,9 @@
 import { BaseEntity } from "src/base-entity";
-import { Post } from "src/post/entities/post.entity";
-import { GENDER, ROLE } from "src/user/entities/EUser";
+import { Order } from "src/module/order/entities/order.entity";
+
+import { Post } from "src/module/post/entities/post.entity";
+import { GENDER, ROLE } from "src/module/user/entities/EUser";
+
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
@@ -37,11 +40,14 @@ export class User extends BaseEntity {
   })
   role: ROLE;
 
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
+
   @Column({ type: 'varchar', nullable: true })
   refreshToken: string;
 
   @Column({ type: 'boolean', default: false })
-  isVerified: boolean;
+  isActive: boolean;
 
   @Column({ type: 'varchar', nullable: true })
   verificationCode: string;
