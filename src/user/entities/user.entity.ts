@@ -4,15 +4,12 @@ import { GENDER, ROLE } from "src/user/entities/EUser";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
-
-
-
 @Entity('users')
 export class User extends BaseEntity {
   @Column({ nullable: false })
   email: string;
 
-  @Column({ nullable: false})
+  @Column({ nullable: false })
   password: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -39,6 +36,9 @@ export class User extends BaseEntity {
     default: ROLE.USER,
   })
   role: ROLE;
+
+  @Column({ type: 'varchar', nullable: true })
+  refreshToken: string;
 
   @Column({ type: 'boolean', default: false })
   isVerified: boolean;

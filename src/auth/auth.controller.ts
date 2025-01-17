@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthSignupDto, CreateAuthDto, UpdateAuthDto } from 'src/auth/dto';
 import { Tokens } from 'src/auth/types';
+import { LoggingInterceptor } from 'src/common/interceptor/logging.interceptor';
+import { TransformInterceptor } from 'src/common/interceptor/transform.interceptor';
 
 
 @Controller('auth')
@@ -10,6 +12,7 @@ export class AuthController {
 
   @Post('/signup')
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(TransformInterceptor)
   SignUp(@Body() newUser: CreateAuthDto) {
     return this.authService.SignUp(newUser);
   }
