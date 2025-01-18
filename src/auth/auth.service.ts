@@ -1,5 +1,6 @@
 import {
   BadGatewayException,
+  ConflictException,
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/module/user/user.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,7 @@ export class AuthService {
   ) {}
   async SignUp(createAuthDto: CreateAuthDto) {
     const hashedPassword = await this.hashPassword(createAuthDto.password);
+    const UUIDCode = randomUUID()
     return await this.userService.create({
       ...createAuthDto,
       password: hashedPassword,
@@ -51,6 +54,17 @@ export class AuthService {
     };
   }
 
+  async verifyAccount(email:string,code:number) {
+    const existUser = await this.userService.findOnebyEmail(email);
+    if (existUser.isActive === true){
+      throw new ConflictException("You already verify")
+    }
+    if(code !== existUser.verificationCode){
+      throw new ForbiddenException('verify code wrong! Please try again');
+    }
+    return existUser;
+  }
+
   private async GenerateToken(userId: number, email: string) {
     const access_token = await this.jwtService.signAsync(
       {
@@ -58,8 +72,8 @@ export class AuthService {
         email,
       },
       {
-        secret: this.configService.get<string>('AT_SECRET'),
-        expiresIn: this.configService.get<string>('AT_EXPIRE'),
+        secret: this.configService.getOrThrow<string>('AT_SECRET'),
+        expiresIn: this.configService.getOrThrow<string>('AT_EXPIRE'),
       },
     );
     const refresh_token = await this.jwtService.signAsync(
@@ -68,8 +82,8 @@ export class AuthService {
         email,
       },
       {
-        secret: this.configService.get<string>('RT_SECRET'),
-        expiresIn: this.configService.get<string>('RT_EXPIRE'),
+        secret: this.configService.getOrThrow<string>('RT_SECRET'),
+        expiresIn: this.configService.getOrThrow<string>('RT_EXPIRE'),
       },
     );
     return { access_token, refresh_token };
@@ -107,8 +121,8 @@ export class AuthService {
     return { access_token, refresh_token };
   }
 
-  async SignOut(userId: number) {
-    return false;
+  async SignOut(email: string) {
+    return true;
   }
 
   private async hashPassword(password: string): Promise<string> {

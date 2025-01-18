@@ -50,7 +50,7 @@ export class User extends BaseEntity {
   isActive: boolean;
 
   @Column({ type: 'varchar', nullable: true })
-  verificationCode: string;
+  verificationCode: number;
 
   @Column({ type: 'varchar', nullable: true })
   salt: string;

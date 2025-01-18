@@ -1,10 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  UseInterceptors,
+  Req,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthSignupDto, CreateAuthDto, UpdateAuthDto } from 'src/auth/dto';
-import { Tokens } from 'src/auth/types';
-import { LoggingInterceptor } from 'src/common/interceptor/logging.interceptor';
-import { TransformInterceptor } from 'src/common/interceptor/transform.interceptor';
 
+import { TransformInterceptor } from 'src/common/interceptor/transform.interceptor';
+import { Public } from 'src/common/decorators';
+
+import { RtGuard } from 'src/common/guards';
 
 @Controller('auth')
 export class AuthController {
@@ -12,26 +27,34 @@ export class AuthController {
 
   @Post('/signup')
   @HttpCode(HttpStatus.CREATED)
+  @Public()
   @UseInterceptors(TransformInterceptor)
   SignUp(@Body() newUser: CreateAuthDto) {
     return this.authService.SignUp(newUser);
   }
+
   @Post('/signin')
+  @Public()
   @HttpCode(HttpStatus.OK)
   SignIn(@Body() newUser: AuthSignupDto) {
-
     return this.authService.SignIn(newUser);
+  }
+
+  @Post('verify')
+  @HttpCode(HttpStatus.ACCEPTED)
+  verify(@Req() req, @Body('code') code: number) {
+    return this.authService.verifyAccount(req.user['email'], code);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.ACCEPTED)
-  logout(userId: number): Promise<boolean> {
-    return this.authService.SignOut(userId);
+  logout(@Body() email: string): Promise<boolean> {
+    return this.authService.SignOut(email);
   }
 
   @Post('refreshtoken')
   @HttpCode(HttpStatus.ACCEPTED)
-  RefreshToken(@Body() {refreshToken}: any): Promise<any> {
+  RefreshToken(@Body() { refreshToken }: any): Promise<any> {
     return this.authService.RefreshToken(refreshToken);
   }
 
