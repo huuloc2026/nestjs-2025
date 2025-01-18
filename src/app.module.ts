@@ -15,6 +15,7 @@ import { OrderModule } from 'src/module/order/order.module';
 import { MailerModule } from './mailer/mailer.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from 'src/common/guards';
+import { AtStrategy, RtStrategy } from 'src/auth/strategies';
 
 
 @Module({
@@ -35,6 +36,8 @@ import { AtGuard } from 'src/common/guards';
   ],
   controllers: [],
   providers: [
+    AtStrategy,
+    RtStrategy,
     {
       provide: APP_GUARD,
       useClass: AtGuard,

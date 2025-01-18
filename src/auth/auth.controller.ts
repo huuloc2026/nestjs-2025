@@ -41,8 +41,11 @@ export class AuthController {
   }
 
   @Post('verify')
+  @Public()
+  @UseGuards(RtGuard)
   @HttpCode(HttpStatus.ACCEPTED)
   verify(@Req() req, @Body('code') code: number) {
+    console.log(req.user);
     return this.authService.verifyAccount(req.user['email'], code);
   }
 
