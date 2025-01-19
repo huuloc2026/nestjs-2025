@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,18 +6,24 @@ import { User } from 'src/module/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateAuthDto } from 'src/auth/dto';
 import { randomUUID } from 'crypto';
+import { NotFoundError } from 'rxjs';
+import { ROLE } from 'src/module/user/enum/EUser';
 
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
-  async createNewUser(createUserDto:Partial<User>):Promise<User> {
-    const data = { ...createUserDto};
+  async createNewUser(createUserDto: Partial<User>): Promise<User> {
+    const data = { ...createUserDto };
     const newUser = await this.userRepo.save(data);
     return newUser;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findOneByCondition(condition: any) {
+    const property = await this.userRepo.findOne({
+      where: { ...condition },
+    });
+    if (!property) throw new NotFoundException('Can Not find');
+    return property;
   }
 
   async findOnebyId(id: number) {
@@ -36,11 +42,17 @@ export class UserService {
     return property;
   }
 
-  async findEmailNotExist(email:string):Promise<boolean>{
+  async findEmailNotExist(email: string): Promise<boolean> {
     const property = await this.userRepo.findOne({
       where: { email },
     });
-    return !!property
+    return !!property;
+  }
+
+  async GetUserWithRole(emailInput: string): Promise<any> {
+    const User = await this.findOnebyEmail(emailInput);
+    const {id,email,role} = User
+    return { id, email, role };
   }
 
   async setCurrentRefreshToken(id: number, hashed_token: string) {
@@ -51,7 +63,7 @@ export class UserService {
     });
   }
 
-  async update(id: number, updateUserDto: Partial<User>):Promise<User> {
+  async update(id: number, updateUserDto: Partial<User>): Promise<User> {
     const property = await this.findOnebyId(id);
     return this.userRepo.save({
       ...property,
@@ -59,7 +71,17 @@ export class UserService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async findOne(id: number): Promise<User> {
+    const userExist = await this.userRepo.findOne({ where: { id } });
+    if (!userExist) {
+      throw new NotFoundException(`Not found user with ${id}`);
+    }
+    return userExist;
+  }
+  async findAll() {
+    return await this.userRepo.findAndCount();
+  }
+  async remove(id: number) {
+    return await this.userRepo.delete(id);
   }
 }

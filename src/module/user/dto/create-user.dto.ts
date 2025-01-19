@@ -9,7 +9,7 @@ import {
   IsPhoneNumber,
   MaxLength,
 } from 'class-validator';
-import { GENDER } from 'src/module/user/entities/EUser';
+import { GENDER } from 'src/module/user/enum/EUser';
 
 
 export class CreateUserDto {

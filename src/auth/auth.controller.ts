@@ -14,18 +14,63 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthSignupDto, CreateAuthDto, UpdateAuthDto, VerifyDTO } from 'src/auth/dto';
+import {
+  AuthSignupDto,
+  CreateAuthDto,
+  UpdateAuthDto,
+  VerifyDTO,
+} from 'src/auth/dto';
 
 import { TransformInterceptor } from 'src/common/interceptor/transform.interceptor';
 import { Public } from 'src/common/decorators';
 
-import { AtGuard, LocalAuthGuard, RtGuard } from 'src/common/guards';
+import {
+  AtGuard,
+  LocalAuthGuard,
+  RolesGuard,
+  RtGuard,
+} from 'src/common/guards';
+import { Roles } from 'src/common/decorators/role.decorator';
+import { ROLE } from 'src/module/user/enum/EUser';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
+  @ApiOperation({
+    summary: 'Admin create new user',
+    description: `
+    * Only admin can use this API
+    * Admin create user and give some specific information`,
+  })
+  @ApiBearerAuth('JWT-auth')
+  @ApiBody({
+    type: CreateAuthDto,
+    examples: {
+      user_1: {
+        value: {
+          email: 'johndoe@example.com',
+          password: '1232@asdS',
+        } as CreateAuthDto,
+      },
+      user_2: {
+        value: {
+          email: 'michaelsmith@example.com',
+          password: '1232@asdS',
+        } as CreateAuthDto,
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @HttpCode(HttpStatus.CREATED)
   @Public()
   @UseInterceptors(TransformInterceptor)
@@ -55,9 +100,23 @@ export class AuthController {
   }
 
   @Post('refreshtoken')
+  @Public()
+  @UseGuards(RtGuard)
   @HttpCode(HttpStatus.ACCEPTED)
-  RefreshToken(@Body() { refreshToken }: any): Promise<any> {
-    return this.authService.RefreshToken(refreshToken);
+  RefreshToken(@Req() request: any): Promise<any> {
+    const { user } = request;
+    return this.authService.RefreshToken(user);
+  }
+
+  @Post('testEndpointAT')
+  @Roles(ROLE.USER)
+  @UseGuards(RolesGuard)
+  @UseGuards(AtGuard)
+  @HttpCode(HttpStatus.ACCEPTED)
+  TestEndPointAT(@Req() request: any) {
+    const { user } = request;
+    const test = this.authService.TestEndpoint(user.email);
+    return test;
   }
 
   @Post()
@@ -66,22 +125,25 @@ export class AuthController {
   }
 
   @Get()
+  @Roles(ROLE.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseGuards(AtGuard)
   findAll() {
     return this.authService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.authService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
+  update(@Param('id') id: number, @Body() updateAuthDto: UpdateAuthDto) {
     return this.authService.update(+id, updateAuthDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.authService.remove(+id);
   }
 }
