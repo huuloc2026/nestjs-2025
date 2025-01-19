@@ -109,9 +109,8 @@ export class AuthController {
   }
 
   @Post('testEndpointAT')
-  @Roles(ROLE.USER)
+  @Roles(ROLE.ADMIN)
   @UseGuards(RolesGuard)
-  @UseGuards(AtGuard)
   @HttpCode(HttpStatus.ACCEPTED)
   TestEndPointAT(@Req() request: any) {
     const { user } = request;
@@ -127,7 +126,6 @@ export class AuthController {
   @Get()
   @Roles(ROLE.ADMIN)
   @UseGuards(RolesGuard)
-  @UseGuards(AtGuard)
   findAll() {
     return this.authService.findAll();
   }
