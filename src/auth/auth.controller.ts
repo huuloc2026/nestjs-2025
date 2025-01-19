@@ -19,7 +19,7 @@ import { AuthSignupDto, CreateAuthDto, UpdateAuthDto } from 'src/auth/dto';
 import { TransformInterceptor } from 'src/common/interceptor/transform.interceptor';
 import { Public } from 'src/common/decorators';
 
-import { RtGuard } from 'src/common/guards';
+import { AtGuard, LocalAuthGuard, RtGuard } from 'src/common/guards';
 
 @Controller('auth')
 export class AuthController {
@@ -35,17 +35,16 @@ export class AuthController {
 
   @Post('/signin')
   @Public()
+  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  SignIn(@Body() newUser: AuthSignupDto) {
-    return this.authService.SignIn(newUser);
+  SignIn(@Req() request) {
+    const { user } = request;
+    return this.authService.SignIn(user);
   }
 
   @Post('verify')
-  @Public()
-  @UseGuards(RtGuard)
   @HttpCode(HttpStatus.ACCEPTED)
   verify(@Req() req, @Body('code') code: number) {
-    console.log(req.user);
     return this.authService.verifyAccount(req.user['email'], code);
   }
 

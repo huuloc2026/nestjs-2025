@@ -10,11 +10,9 @@ import { randomUUID } from 'crypto';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
-  async create(createUserDto: any) {
-    const UUIDCode = randomUUID()
-    const data = { ...createUserDto, verificationCode: UUIDCode };
+  async createNewUser(createUserDto:Partial<User>):Promise<User> {
+    const data = { ...createUserDto};
     const newUser = await this.userRepo.save(data);
-    
     return newUser;
   }
 
@@ -33,11 +31,27 @@ export class UserService {
     const property = await this.userRepo.findOne({
       where: { email },
     });
-    if (!property) throw new HttpException(`Can not find user by ${email}`, 401);
+    if (!property)
+      throw new HttpException(`Can not find user by ${email}`, 401);
     return property;
   }
 
-  async update(id: number, updateUserDto: Partial<User>) {
+  async findEmailNotExist(email:string):Promise<boolean>{
+    const property = await this.userRepo.findOne({
+      where: { email },
+    });
+    return !!property
+  }
+
+  async setCurrentRefreshToken(id: number, hashed_token: string) {
+    const property = await this.findOnebyId(id);
+    return this.userRepo.save({
+      ...property,
+      refreshToken: hashed_token,
+    });
+  }
+
+  async update(id: number, updateUserDto: Partial<User>):Promise<User> {
     const property = await this.findOnebyId(id);
     return this.userRepo.save({
       ...property,

@@ -27,6 +27,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsPhoneNumber('VN',{message: "Format PhoneVN: 09xx.xxx.xxx"})
   phoneNumber: string;
+  
   @Expose()
   @IsOptional()
   avatar: string;
