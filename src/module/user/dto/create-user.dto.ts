@@ -1,10 +1,13 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import {
+  IsDate,
+  isDateString,
   IsEmail,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
+  MaxLength,
 } from 'class-validator';
 import { GENDER } from 'src/module/user/entities/EUser';
 
@@ -25,12 +28,18 @@ export class CreateUserDto {
 
   @Expose()
   @IsOptional()
-  @IsPhoneNumber('VN',{message: "Format PhoneVN: 09xx.xxx.xxx"})
+  @IsPhoneNumber('VN', { message: 'Format PhoneVN: 09xx.xxx.xxx' })
   phoneNumber: string;
-  
+
   @Expose()
   @IsOptional()
   avatar: string;
+
+  @Expose()
+  @IsOptional({ message: 'Date of Birth have a valid format: YYYY-MM-DD'})
+  @IsDate()
+  @Type(() => Date)
+  dateOfBirth: Date;
 
   @Expose()
   @IsOptional()
@@ -39,5 +48,6 @@ export class CreateUserDto {
 
   @Expose()
   @IsOptional()
+  @MaxLength(20)
   address: string;
 }

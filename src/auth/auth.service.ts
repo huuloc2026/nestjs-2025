@@ -25,6 +25,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
   async SignUp(createAuthDto: CreateAuthDto) {
+    console.log(createAuthDto);
     const existed_user = await this.userService.findEmailNotExist(
       createAuthDto.email,
     );

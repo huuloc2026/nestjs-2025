@@ -14,7 +14,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthSignupDto, CreateAuthDto, UpdateAuthDto } from 'src/auth/dto';
+import { AuthSignupDto, CreateAuthDto, UpdateAuthDto, VerifyDTO } from 'src/auth/dto';
 
 import { TransformInterceptor } from 'src/common/interceptor/transform.interceptor';
 import { Public } from 'src/common/decorators';
@@ -44,8 +44,8 @@ export class AuthController {
 
   @Post('verify')
   @HttpCode(HttpStatus.ACCEPTED)
-  verify(@Req() req, @Body('code') code: number) {
-    return this.authService.verifyAccount(req.user['email'], code);
+  verify(@Req() req, @Body('code') code: VerifyDTO) {
+    return this.authService.verifyAccount(req.user['email'], Number(code));
   }
 
   @Post('logout')
