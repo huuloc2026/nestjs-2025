@@ -16,6 +16,7 @@ import { randomUUID } from 'crypto';
 import { User } from 'src/module/user/entities/user.entity';
 import { JwtPayload } from 'src/auth/types';
 import { CommonService } from 'src/common/common.service';
+import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -97,6 +98,10 @@ export class AuthService {
     };
   }
 
+  async ChangeInfor(user: UpdateUserDto, SomethingUpdate:any) {
+    return await this.userService.updateInfor(user, SomethingUpdate);
+  }
+
   private async GenerateToken(payload: JwtPayload) {
     const access_token = await this.generateAccessToken(payload);
     const refresh_token = await this.generateRefreshToken(payload);
@@ -136,6 +141,7 @@ export class AuthService {
   }
 
   async SignOut(email: string) {
+    console.log(email);
     return true;
   }
 
@@ -146,12 +152,15 @@ export class AuthService {
   }
 
   async RefreshToken(user: any) {
-    const { access_token } = await this.GenerateToken({sub:user.id,email:user.email});
+    const { access_token } = await this.GenerateToken({
+      sub: user.id,
+      email: user.email,
+    });
     return { access_token };
   }
   // for RT guard
   async getUserIfRefreshTokenMatched(
-    user_id: number,
+    user_id: string,
     refresh_token: string,
   ): Promise<User> {
     try {
@@ -188,8 +197,8 @@ export class AuthService {
     return await bcrypt.compare(plainPassword, hashedPassword);
   }
 
-  async TestEndpoint(input:any){
-    return await this.userService.GetUserWithRole(input)
+  async TestEndpoint(input: any) {
+    return await this.userService.GetUserWithRole(input);
   }
 
   create(createAuthDto: CreateAuthDto) {
@@ -197,15 +206,15 @@ export class AuthService {
   }
 
   findAll() {
-    return this.userService.findAll()
+    return this.userService.findAll();
   }
 
   findOne(id: string) {
-    return this.userService.findOne(id)
+    return this.userService.findOne(id);
   }
 
-  update(id:string,updateAuthDto:UpdateAuthDto){
-    return this.userService.update(id,updateAuthDto)
+  update(id: string, updateAuthDto: UpdateAuthDto) {
+    return this.userService.update(id, updateAuthDto);
   }
 
   remove(id: string) {

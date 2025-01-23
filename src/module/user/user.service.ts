@@ -49,9 +49,34 @@ export class UserService {
     return !!property;
   }
 
+  async updateInfor(User: UpdateUserDto, SomethingUpdate:any): Promise<any> {
+    const ExistUser = await this.userRepo.findOne({
+      where: { email: User.email },
+      select: {
+        fullName: true,
+        address: true,
+        Avatar: true,
+        dateOfBirth: true,
+        gender: true,
+        phoneNumber: true,
+      },
+    });
+    //console.log(ExistUser);
+    const newInfor = { ...ExistUser, ...SomethingUpdate };
+    console.log(newInfor);
+
+    // const { id, email, role } = User;
+    // return { id, email, role };
+  }
+
+  async GetInforFromField(email: string, field: any) {
+    // const GetUserInfor = await this.userRepo.findOne({where:{email}
+    //   ,select: {field:true}})
+  }
+
   async GetUserWithRole(emailInput: string): Promise<any> {
     const User = await this.findOnebyEmail(emailInput);
-    const {id,email,role} = User
+    const { id, email, role } = User;
     return { id, email, role };
   }
 

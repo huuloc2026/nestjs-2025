@@ -19,16 +19,16 @@ export class MailerController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.mailerService.findOne(+id);
+    return this.mailerService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMailerDto: UpdateMailerDto) {
-    return this.mailerService.update(+id, updateMailerDto);
+    return this.mailerService.update(id, updateMailerDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.mailerService.remove(+id);
+    return this.mailerService.remove(id);
   }
 }

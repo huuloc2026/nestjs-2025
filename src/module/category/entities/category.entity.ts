@@ -6,9 +6,6 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 
 @Entity('category')
 export class Category extends BaseEntity  {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column({ unique: true })
   name: string;
 

@@ -12,15 +12,15 @@ export class MailerService {
     return `This action returns all mailer`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} mailer`;
   }
 
-  update(id: number, updateMailerDto: UpdateMailerDto) {
+  update(id: string, updateMailerDto: UpdateMailerDto) {
     return `This action updates a #${id} mailer`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} mailer`;
   }
 }

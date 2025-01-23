@@ -12,6 +12,7 @@ import {
   Req,
   UseGuards,
   Request,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -38,6 +39,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
+import { ChangeInforUserDTO } from 'src/module/seller/dto/ChangeInforDTO';
 
 @Controller('auth')
 export class AuthController {
@@ -78,7 +80,7 @@ export class AuthController {
     return this.authService.SignUp(newUser);
   }
 
-  @Post('/signin')
+  @Post('signin')
   @Public()
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -93,10 +95,11 @@ export class AuthController {
     return this.authService.verifyAccount(req.user['email'], Number(code));
   }
 
-  @Post('logout')
+  @Post('signout')
   @HttpCode(HttpStatus.ACCEPTED)
-  logout(@Body() email: string): Promise<boolean> {
-    return this.authService.SignOut(email);
+  logout(@Req() req, @Body() email: string): Promise<boolean> {
+    console.log(req.user);
+    return this.authService.SignOut(req.user['email']);
   }
 
   @Post('refreshtoken')
@@ -106,6 +109,17 @@ export class AuthController {
   RefreshToken(@Req() request: any): Promise<any> {
     const { user } = request;
     return this.authService.RefreshToken(user);
+  }
+
+  @Put('updateInfor')
+  @HttpCode(HttpStatus.ACCEPTED)
+  UpdateInfor(
+    @Req() request: any,
+    @Body() SomethingUpdate: ChangeInforUserDTO,
+  ): Promise<any> {
+    const { user } = request;
+
+    return this.authService.ChangeInfor(user, SomethingUpdate);
   }
 
   @Post('testEndpointAT')
