@@ -13,6 +13,7 @@ import {
   UseGuards,
   Request,
   Put,
+  ConflictException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -40,6 +41,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { ChangeInforUserDTO } from 'src/module/seller/dto/ChangeInforDTO';
+import { ChangePasswordDTO } from 'src/module/seller/dto/ChangePasswordDTO';
 
 @Controller('auth')
 export class AuthController {
@@ -91,15 +93,14 @@ export class AuthController {
 
   @Post('verify')
   @HttpCode(HttpStatus.ACCEPTED)
-  verify(@Req() req, @Body('code') code: VerifyDTO) {
-    return this.authService.verifyAccount(req.user['email'], Number(code));
+  verify(@Req() request, @Body('code') code: VerifyDTO) {
+    return this.authService.verifyAccount(request.user['email'], Number(code));
   }
 
   @Post('signout')
   @HttpCode(HttpStatus.ACCEPTED)
-  logout(@Req() req, @Body() email: string): Promise<boolean> {
-    console.log(req.user);
-    return this.authService.SignOut(req.user['email']);
+  logout(@Req() request, @Body() email: string): Promise<boolean> {
+    return this.authService.SignOut(request.user['email']);
   }
 
   @Post('refreshtoken')
@@ -112,14 +113,24 @@ export class AuthController {
   }
 
   @Put('updateInfor')
-  @HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.CREATED)
   UpdateInfor(
     @Req() request: any,
     @Body() SomethingUpdate: ChangeInforUserDTO,
   ): Promise<any> {
-    const { user } = request;
+    return this.authService.ChangeInfor(request.user, SomethingUpdate);
+  }
 
-    return this.authService.ChangeInfor(user, SomethingUpdate);
+  @Post('changepassword')
+  @HttpCode(HttpStatus.CREATED)
+  ChangePassword(
+    @Req() request: any,
+    @Body() SomethingUpdate: ChangePasswordDTO,
+  ): Promise<any> {
+    if(SomethingUpdate.newPassword !== SomethingUpdate.confirmPassword){
+      throw new ConflictException("Please try agains")
+    }
+    return this.authService.ChangePassword(request.user['email'], SomethingUpdate);
   }
 
   @Post('testEndpointAT')

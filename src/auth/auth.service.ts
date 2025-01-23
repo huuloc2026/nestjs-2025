@@ -17,6 +17,7 @@ import { User } from 'src/module/user/entities/user.entity';
 import { JwtPayload } from 'src/auth/types';
 import { CommonService } from 'src/common/common.service';
 import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
+import { ChangePasswordDTO } from 'src/module/seller/dto/ChangePasswordDTO';
 
 @Injectable()
 export class AuthService {
@@ -98,7 +99,7 @@ export class AuthService {
     };
   }
 
-  async ChangeInfor(user: UpdateUserDto, SomethingUpdate:any) {
+  async ChangeInfor(user: UpdateUserDto, SomethingUpdate: any) {
     return await this.userService.updateInfor(user, SomethingUpdate);
   }
 
@@ -139,6 +140,19 @@ export class AuthService {
     });
     return decoded;
   }
+
+  async ChangePassword(email:string,password:ChangePasswordDTO) {
+    const ExistUser = await this.userService.findOnebyEmail(email)
+    
+    if (!(await this.verifyPassword(password.oldPassword,ExistUser.password))){
+      throw new ConflictException("Wrongggg")
+    } 
+    
+    const newHashedpassword = await this.hashPassword(password.newPassword)
+    await this.userService.update(ExistUser.id,{password:newHashedpassword})
+    return 'Successfully changed password';
+  }
+  async UploadAvatar() {}
 
   async SignOut(email: string) {
     console.log(email);

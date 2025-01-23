@@ -49,9 +49,9 @@ export class UserService {
     return !!property;
   }
 
-  async updateInfor(User: UpdateUserDto, SomethingUpdate:any): Promise<any> {
-    const ExistUser = await this.userRepo.findOne({
-      where: { email: User.email },
+  async updateInfor(userDto: UpdateUserDto, updateData: any): Promise<any> {
+    const existingUser = await this.userRepo.findOne({
+      where: { email: userDto.email },
       select: {
         fullName: true,
         address: true,
@@ -61,12 +61,24 @@ export class UserService {
         phoneNumber: true,
       },
     });
-    //console.log(ExistUser);
-    const newInfor = { ...ExistUser, ...SomethingUpdate };
-    console.log(newInfor);
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+    const Infor = { ...existingUser, ...updateData };
+    await this.update(userDto.id, Infor);
+    const updatedUserInfo = await this.userRepo.findOne({
+      where: { email: userDto.email },
+      select: {
+        fullName: true,
+        address: true,
+        Avatar: true,
+        dateOfBirth: true,
+        gender: true,
+        phoneNumber: true,
+      },
+    });
 
-    // const { id, email, role } = User;
-    // return { id, email, role };
+    return updatedUserInfo;
   }
 
   async GetInforFromField(email: string, field: any) {

@@ -12,7 +12,7 @@ import { OrderItemModule } from './module/order-item/order-item.module';
 import { UserModule } from 'src/module/user/user.module';
 import { PostModule } from 'src/module/post/post.module';
 import { OrderModule } from 'src/module/order/order.module';
-import { MailerModule } from './mailer/mailer.module';
+import { MailModule } from './mailer/mailer.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from 'src/common/guards';
 import { AtStrategy, RtStrategy } from 'src/common/strategies';
@@ -32,7 +32,7 @@ import { AtStrategy, RtStrategy } from 'src/common/strategies';
     CategoryModule,
     OrderModule,
     OrderItemModule,
-    MailerModule,
+    MailModule,
   ],
   controllers: [],
   providers: [
