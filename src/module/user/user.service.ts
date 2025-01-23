@@ -26,7 +26,7 @@ export class UserService {
     return property;
   }
 
-  async findOnebyId(id: number) {
+  async findOnebyId(id: string) {
     const property = await this.userRepo.findOne({
       where: { id },
     });
@@ -55,7 +55,7 @@ export class UserService {
     return { id, email, role };
   }
 
-  async setCurrentRefreshToken(id: number, hashed_token: string) {
+  async setCurrentRefreshToken(id: string, hashed_token: string) {
     const property = await this.findOnebyId(id);
     return this.userRepo.save({
       ...property,
@@ -63,7 +63,7 @@ export class UserService {
     });
   }
 
-  async update(id: number, updateUserDto: Partial<User>): Promise<User> {
+  async update(id: string, updateUserDto: Partial<User>): Promise<User> {
     const property = await this.findOnebyId(id);
     return this.userRepo.save({
       ...property,
@@ -71,7 +71,7 @@ export class UserService {
     });
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(id: string): Promise<User> {
     const userExist = await this.userRepo.findOne({ where: { id } });
     if (!userExist) {
       throw new NotFoundException(`Not found user with ${id}`);
@@ -81,7 +81,7 @@ export class UserService {
   async findAll() {
     return await this.userRepo.findAndCount();
   }
-  async remove(id: number) {
+  async remove(id: string) {
     return await this.userRepo.delete(id);
   }
 }

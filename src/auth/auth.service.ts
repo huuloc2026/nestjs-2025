@@ -42,7 +42,7 @@ export class AuthService {
     return `successfully register`;
   }
 
-  async SignIn(User: { id: number; email: string }) {
+  async SignIn(User: { id: string; email: string }) {
     const { id, email } = User;
     const payload: JwtPayload = { sub: id, email: email };
     const { access_token, refresh_token } = await this.GenerateToken(payload);
@@ -171,11 +171,11 @@ export class AuthService {
     }
   }
   //save refresh Token to db
-  async storeRefreshToken(user_id: number, token: string): Promise<void> {
+  async storeRefreshToken(id: string, token: string): Promise<void> {
     try {
       const saltRound = this.configService.get<number>('SALT_ROUND');
       const hashed_token = await bcrypt.hash(token, saltRound);
-      await this.userService.setCurrentRefreshToken(user_id, hashed_token);
+      await this.userService.setCurrentRefreshToken(id, hashed_token);
     } catch (error) {
       throw error;
     }
@@ -200,15 +200,15 @@ export class AuthService {
     return this.userService.findAll()
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.userService.findOne(id)
   }
 
-  update(id:number,updateAuthDto:UpdateAuthDto){
+  update(id:string,updateAuthDto:UpdateAuthDto){
     return this.userService.update(id,updateAuthDto)
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.userService.remove(id);
   }
 }
