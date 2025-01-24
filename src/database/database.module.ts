@@ -9,6 +9,7 @@ import { Category } from 'src/module/category/entities/category.entity';
 import { Order } from 'src/module/order/entities/order.entity';
 import { OrderItem } from 'src/module/order-item/entities/order-item.entity';
 import { Seller } from 'src/module/seller/entities/seller.entity';
+import { Token } from 'src/module/user-tokens/user-tokens.entity';
 
 
 @Module({
@@ -23,7 +24,16 @@ import { Seller } from 'src/module/seller/entities/seller.entity';
         username: configService.get<string>('DATABASE_USERNAME'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities:[User,Seller,Product,Post,Category,Order,OrderItem],
+        entities: [
+          User,
+          Seller,
+          Product,
+          Post,
+          Category,
+          Order,
+          OrderItem,
+          Token,
+        ],
         autoLoadEntities: true,
         synchronize: true,
       }),

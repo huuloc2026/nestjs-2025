@@ -4,6 +4,8 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateAuthDto, UpdateAuthDto } from './dto';
@@ -11,19 +13,21 @@ import { CreateAuthDto, UpdateAuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/module/user/user.service';
+import { UserService, UserWithRole } from 'src/module/user/user.service';
 import { randomUUID } from 'crypto';
 import { User } from 'src/module/user/entities/user.entity';
 import { JwtPayload } from 'src/auth/types';
 import { CommonService } from 'src/common/common.service';
 import { UpdateUserDto } from 'src/module/user/dto/update-user.dto';
 import { ChangePasswordDTO } from 'src/module/seller/dto/ChangePasswordDTO';
+import { UserTokensService } from 'src/module/user-tokens/user-tokens.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private userTokens: UserTokensService,
     private commonService: CommonService,
     private jwtService: JwtService,
   ) {}
@@ -48,10 +52,8 @@ export class AuthService {
     const { id, email } = User;
     const payload: JwtPayload = { sub: id, email: email };
     const { access_token, refresh_token } = await this.GenerateToken(payload);
-    const hashToken = await this.hashPassword(refresh_token);
-    await this.userService.update(id, {
-      refreshToken: hashToken,
-    });
+    await this.userTokens.storeToken(id, access_token, refresh_token);
+
     return {
       message: 'successfully sign in,...updating generate AT-RT',
       access_token,
@@ -141,21 +143,45 @@ export class AuthService {
     return decoded;
   }
 
-  async ChangePassword(email:string,password:ChangePasswordDTO) {
-    const ExistUser = await this.userService.findOnebyEmail(email)
-    
-    if (!(await this.verifyPassword(password.oldPassword,ExistUser.password))){
-      throw new ConflictException("Wrongggg")
-    } 
-    
-    const newHashedpassword = await this.hashPassword(password.newPassword)
-    await this.userService.update(ExistUser.id,{password:newHashedpassword})
+  async ChangePassword(email: string, password: ChangePasswordDTO) {
+    const ExistUser = await this.userService.findOnebyEmail(email);
+
+    if (
+      !(await this.verifyPassword(password.oldPassword, ExistUser.password))
+    ) {
+      throw new ConflictException('Wrongggg');
+    }
+
+    const newHashedpassword = await this.hashPassword(password.newPassword);
+    await this.userService.update(ExistUser.id, {
+      password: newHashedpassword,
+    });
     return 'Successfully changed password';
   }
   async UploadAvatar() {}
 
-  async SignOut(email: string) {
-    console.log(email);
+  async SignOut(id: string) {
+    const check = await this.userTokens.checkKeyStore(id);
+    if(!check){
+      Logger.warn('Not found id to delete');
+      throw new NotFoundException("Can not found")
+    }
+    await this.userTokens.removeToken(id)
+    return 'Successfully log out password';
+  }
+  async handlerRefreshToken(user: UserWithRole) {
+    // delete old key
+    const check = await this.userTokens.removeToken(user.id)
+
+    //create new key 
+    const { access_token,refresh_token } = await this.GenerateToken({
+      sub: user.id,
+      email: user.email,
+    });
+    await this.userTokens.storeToken(user.id, access_token,refresh_token);
+    return { access_token, refresh_token };
+
+    ///updating
     return true;
   }
 
@@ -165,30 +191,26 @@ export class AuthService {
     return await bcrypt.hash(password, salt);
   }
 
-  async RefreshToken(user: any) {
-    const { access_token } = await this.GenerateToken({
-      sub: user.id,
-      email: user.email,
-    });
-    return { access_token };
-  }
   // for RT guard
   async getUserIfRefreshTokenMatched(
-    user_id: string,
-    refresh_token: string,
-  ): Promise<User> {
+    userId: string,
+    refreshToken: string,
+  ): Promise<any> {
     try {
       const user = await this.userService.findOneByCondition({
-        id: user_id,
+        id: userId,
       });
       if (!user) {
         throw new UnauthorizedException();
       }
-      await this.verifyPlainContentWithHashedContent(
-        refresh_token,
-        user.refreshToken,
+      const checkRefreshTokenTrue = await this.userTokens.validateRefreshToken(
+        userId,
+        refreshToken,
       );
-      return user;
+      if (!checkRefreshTokenTrue) {
+        throw new UnauthorizedException();
+      }
+      return this.commonService.getEssentialUserData(user);
     } catch (error) {
       throw error;
     }

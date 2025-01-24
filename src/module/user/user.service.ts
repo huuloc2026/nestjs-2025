@@ -8,6 +8,14 @@ import { CreateAuthDto } from 'src/auth/dto';
 import { randomUUID } from 'crypto';
 import { NotFoundError } from 'rxjs';
 import { ROLE } from 'src/module/user/enum/EUser';
+import { RequestWithUser } from 'src/common/types/requests.type';
+
+
+export interface UserWithRole {
+  id: string;
+  email: string;
+  role: string;
+}
 
 @Injectable()
 export class UserService {
@@ -86,7 +94,7 @@ export class UserService {
     //   ,select: {field:true}})
   }
 
-  async GetUserWithRole(emailInput: string): Promise<any> {
+  async GetUserWithRole(emailInput: string): Promise<UserWithRole | null> {
     const User = await this.findOnebyEmail(emailInput);
     const { id, email, role } = User;
     return { id, email, role };

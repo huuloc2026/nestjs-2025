@@ -16,6 +16,9 @@ import { MailModule } from './mailer/mailer.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from 'src/common/guards';
 import { AtStrategy, RtStrategy } from 'src/common/strategies';
+import { UserTokensService } from './module/user-tokens/user-tokens.service';
+import { UserTokensModule } from 'src/module/user-tokens/user-tokens.module';
+
 
 
 @Module({
@@ -33,6 +36,7 @@ import { AtStrategy, RtStrategy } from 'src/common/strategies';
     OrderModule,
     OrderItemModule,
     MailModule,
+    UserTokensModule,
   ],
   controllers: [],
   providers: [
@@ -42,6 +46,7 @@ import { AtStrategy, RtStrategy } from 'src/common/strategies';
       provide: APP_GUARD,
       useClass: AtGuard,
     },
+    UserTokensService,
   ],
 })
 export class AppModule {}

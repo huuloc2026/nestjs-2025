@@ -99,17 +99,19 @@ export class AuthController {
 
   @Post('signout')
   @HttpCode(HttpStatus.ACCEPTED)
-  logout(@Req() request, @Body() email: string): Promise<boolean> {
-    return this.authService.SignOut(request.user['email']);
+  logout(@Req() request): Promise<any> {
+    return this.authService.SignOut(request.user['id']);
   }
 
   @Post('refreshtoken')
   @Public()
   @UseGuards(RtGuard)
   @HttpCode(HttpStatus.ACCEPTED)
-  RefreshToken(@Req() request: any): Promise<any> {
+  RefreshToken(
+    @Req() request: any,
+  ): Promise<any> {
     const { user } = request;
-    return this.authService.RefreshToken(user);
+    return this.authService.handlerRefreshToken(user);
   }
 
   @Put('updateInfor')
@@ -127,10 +129,13 @@ export class AuthController {
     @Req() request: any,
     @Body() SomethingUpdate: ChangePasswordDTO,
   ): Promise<any> {
-    if(SomethingUpdate.newPassword !== SomethingUpdate.confirmPassword){
-      throw new ConflictException("Please try agains")
+    if (SomethingUpdate.newPassword !== SomethingUpdate.confirmPassword) {
+      throw new ConflictException('Please try agains');
     }
-    return this.authService.ChangePassword(request.user['email'], SomethingUpdate);
+    return this.authService.ChangePassword(
+      request.user['email'],
+      SomethingUpdate,
+    );
   }
 
   @Post('testEndpointAT')
