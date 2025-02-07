@@ -86,7 +86,7 @@ export class AuthService {
     if (existUser.isActive === true) {
       throw new ConflictException('You already verify');
     }
-    if (code !== existUser.verificationCode) {
+    if (code !== +existUser.verificationCode) {
       throw new ForbiddenException('verify code wrong! Please try again');
     }
     if (existUser.verificationCode === null && existUser.isActive === false) {
@@ -143,20 +143,26 @@ export class AuthService {
     return decoded;
   }
 
-  async ChangePassword(email: string, password: ChangePasswordDTO) {
-    const ExistUser = await this.userService.findOnebyEmail(email);
-
-    if (
-      !(await this.verifyPassword(password.oldPassword, ExistUser.password))
-    ) {
+  async ChangePassword(email: string, passwordBody: ChangePasswordDTO) {
+    const existUser = await this.userService.findOnebyEmail(email);
+    const { id, password } = existUser;
+    const { oldPassword, newPassword } = passwordBody;
+    if (!(await this.verifyPassword(oldPassword, password))) {
       throw new ConflictException('Wrongggg');
     }
 
-    const newHashedpassword = await this.hashPassword(password.newPassword);
-    await this.userService.update(ExistUser.id, {
+    const newHashedpassword = await this.hashPassword(newPassword);
+    await this.userService.update(id, {
       password: newHashedpassword,
     });
-    return 'Successfully changed password';
+    await this.userTokens.removeToken(id);
+    //create new key
+    const { access_token, refresh_token } = await this.GenerateToken({
+      sub:id,
+      email: email,
+    });
+    await this.userTokens.storeToken(id, access_token, refresh_token);
+    return { message:"'Successfully changed password'",access_token, refresh_token };
   }
   async UploadAvatar() {}
 
@@ -169,7 +175,7 @@ export class AuthService {
     await this.userTokens.removeToken(id)
     return 'Successfully log out password';
   }
-  async handlerRefreshToken(user: UserWithRole) {
+  async handlerRefreshToken(user: any) {
     // delete old key
     const check = await this.userTokens.removeToken(user.id)
 

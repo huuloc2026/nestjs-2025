@@ -52,6 +52,7 @@ export class UserTokensService {
   }
 
   async removeToken(userId: string): Promise<any> {
+     Logger.log(`Token deleted for userId: ${userId}`, 'UserTokensService');
     return await this.tokenRepository.delete({ userId });
   }
 }
